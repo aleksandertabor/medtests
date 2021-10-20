@@ -2,63 +2,51 @@
 
 namespace App\API\Categories\Controllers;
 
+use App\API\Categories\Requests\CategoryRequest;
+use App\API\Categories\Resources\CategoryResource;
 use App\API\Controller;
-use Illuminate\Http\Request;
+use Domain\Categories\Actions\CreateCategoryAction;
+use Domain\Categories\Actions\DeleteCategoryAction;
+use Domain\Categories\Actions\UpdateCategoryAction;
+use Domain\Categories\DataTransferObjects\CategoryData;
+use Domain\Categories\Models\Category;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        $query = Category::query();
+
+        return CategoryResource::collection($query->paginate());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(CategoryRequest $request, CreateCategoryAction $createCategoryAction)
     {
-        //
+        $categoryData = CategoryData::fromRequest($request);
+
+        $category = $createCategoryAction($categoryData);
+
+        return new CategoryResource($category);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(Category $category)
     {
-        //
+        return new CategoryResource($category);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Category $category, CategoryRequest $request, UpdateCategoryAction $updateCategoryAction)
     {
-        //
+        $categoryData = CategoryData::fromRequest($request);
+
+        $category = $updateCategoryAction($category, $categoryData);
+
+        return new CategoryResource($category);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(Category $category, DeleteCategoryAction $deleteCategoryAction)
     {
-        //
+        $deleteCategoryAction($category);
+
+        return response()->json([], 204);
     }
 }

@@ -2,17 +2,14 @@
 
 namespace App\API\BloodTests\Controllers;
 
+use App\API\BloodTests\Resources\BloodTestResource;
 use App\API\Controller;
+use Domain\Categories\Models\Category;
 
 class BloodTestCategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function __invoke()
+    public function __invoke(Category $category)
     {
-        // ...
+        return BloodTestResource::collection($category->bloodTests()->paginate());
     }
 }

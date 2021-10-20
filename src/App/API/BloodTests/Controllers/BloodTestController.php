@@ -2,65 +2,51 @@
 
 namespace App\API\BloodTests\Controllers;
 
+use App\API\BloodTests\Requests\BloodTestRequest;
+use App\API\BloodTests\Resources\BloodTestResource;
 use App\API\Controller;
-use Illuminate\Http\Request;
+use Domain\BloodTests\Actions\CreateBloodTestAction;
+use Domain\BloodTests\Actions\DeleteBloodTestAction;
+use Domain\BloodTests\Actions\UpdateBloodTestAction;
+use Domain\BloodTests\DataTransferObjects\BloodTestData;
 use Domain\BloodTests\Models\BloodTest;
-use App\API\BloodTests\Requests\BloodTestStoreRequest;
 
 class BloodTestController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        $query = BloodTest::query();
+
+        return BloodTestResource::collection($query->paginate());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  BloodTestStoreRequest $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(BloodTestStoreRequest $request)
+    public function store(BloodTestRequest $request, CreateBloodTestAction $createBloodTestAction)
     {
-        //
+        $bloodTestData = BloodTestData::fromRequest($request);
+
+        $bloodTest = $createBloodTestAction($bloodTestData);
+
+        return new BloodTestResource($bloodTest);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  BloodTest  $test
-     * @return \Illuminate\Http\Response
-     */
-    public function show(BloodTest $test)
+    public function show(BloodTest $bloodTest)
     {
-        //
+        return new BloodTestResource($bloodTest);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  BloodTest  $test
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, BloodTest $test)
+    public function update(BloodTest $bloodTest, BloodTestRequest $request, UpdateBloodTestAction $updateBloodTestAction)
     {
-        //
+        $bloodTestData = BloodTestData::fromRequest($request);
+
+        $bloodTest = $updateBloodTestAction($bloodTest, $bloodTestData);
+
+        return new BloodTestResource($bloodTest);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  BloodTest  $test
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(BloodTest $test)
+    public function destroy(BloodTest $bloodTest, DeleteBloodTestAction $deleteBloodTestAction)
     {
-        //
+        $deleteBloodTestAction($bloodTest);
+
+        return response()->json([], 204);
     }
 }
