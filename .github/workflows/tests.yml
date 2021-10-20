@@ -39,6 +39,7 @@ jobs:
 
       -   name: Prepare Laravel Application
           run: |
+              touch database/database.sqlite
               cp .env.example .env
               php artisan key:generate
               php artisan migrate --seed
